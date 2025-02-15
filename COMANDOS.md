@@ -1,3 +1,59 @@
+# Informativo sobre o Ambiente de Execução e Endpoints da API
+
+## Ambiente Atual
+O sistema está operando em modo: **🚀 Produção** ou **🧪 Teste** (conforme configurado no `.env`).
+
+## Sobre o Projeto
+Essa API foi desenvolvida como parte da **Prova de Seleção de Estágio**, utilizando **FastAPI, Pydantic e SQLAlchemy** para cadastro de empresas e gerenciamento de obrigações acessórias.
+
+- **Nome completo**: Jailson Anegues de Souza
+- **Site**: [jailson.dev.br](https://jailson.dev.br/)
+- **Repositório GitHub**: [dcifre_estagio](https://github.com/Jailsouza/dcifre_estagio.git)
+
+---
+
+## 📜 **Documentação da API**
+- [Swagger UI](http://127.0.0.1:8000/docs)
+- [ReDoc](http://127.0.0.1:8000/redoc)
+
+---
+
+## 🔹 **Endpoints Disponíveis**
+
+### 📌 **Empresas**
+- **Criar empresa**  
+  `POST /empresas/`
+  - Cadastro de uma nova empresa.
+- **Listar empresas**  
+  `GET /empresas/?skip={skip}&limit={limit}`
+  - Retorna uma lista de empresas cadastradas.
+- **Obter detalhes de uma empresa**  
+  `GET /empresas/{empresa_id}/`
+  - Retorna os detalhes de uma empresa específica.
+- **Atualizar empresa**  
+  `PUT /empresas/{empresa_id}/`
+  - Atualiza os dados de uma empresa existente.
+- **Excluir empresa**  
+  `DELETE /empresas/{empresa_id}/`
+  - Remove uma empresa do sistema.
+
+---
+
+### 📌 **Obrigações Acessórias**
+- **Criar obrigação acessória**  
+  `POST /obrigacoes_acessorias/`
+  - Cadastra uma nova obrigação acessória.
+- **Listar obrigações acessórias**  
+  `GET /obrigacoes_acessorias/?skip={skip}&limit={limit}`
+  - Retorna uma lista de obrigações acessórias cadastradas.
+- **Atualizar obrigação acessória**  
+  `PUT /obrigacoes_acessorias/{obrigacao_id}/`
+  - Atualiza os dados de uma obrigação acessória existente.
+- **Excluir obrigação acessória**  
+  `DELETE /obrigacoes_acessorias/{obrigacao_id}/`
+  - Remove uma obrigação acessória do sistema.
+
+---
 
 # Alterações realizadas no projeto
 

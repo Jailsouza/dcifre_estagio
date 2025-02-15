@@ -1,5 +1,7 @@
+import os
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session, joinedload
+from dotenv import load_dotenv
+from sqlalchemy.orm import Session
 from typing import List
 from database import get_db
 from crud import (
@@ -21,6 +23,9 @@ from schemas import (
     Empresa
 )
 
+# Carregar as variáveis do .env
+load_dotenv()
+
 app = FastAPI(
     title="Prova de Seleção de Estágio - FastAPI, Pydantic e SQLAlchemy",
     description="""Criar uma API simples utilizando FastAPI, Pydantic, SQLAlchemy para cadastrar 
@@ -29,17 +34,42 @@ app = FastAPI(
     version="1.0.0",
 )
 
+
+# Determinar o ambiente atual
+ENV = os.getenv("ENV", "prod")  # Padrão: produção
+AMBIENTE_ATUAL = "🚀 Produção" if ENV == "prod" else "🧪 TESTE"
+
 @app.get("/")
 def read_root():
     return {
-         "message": (
+        "message": (
             "Prova de Seleção de Estágio\n"
             "Nome completo: JAILSON ANEGUES DE SOUZA\n"
-            "Site: https://jailson.dev.br/\n"
-            "Link: https://github.com/Jailsouza/dcifre_estagio.git"
-        )
-    }
+            "Site: [jailson.dev.br](https://jailson.dev.br/)\n"
+            "Repositório: [GitHub](https://github.com/Jailsouza/dcifre_estagio.git)"
+        ),
+        "status": f"Sistema operando em modo: {AMBIENTE_ATUAL}",
+        "endpoints": {
+            "Documentação Swagger": "http://127.0.0.1:8000/docs",
+            "Documentação ReDoc": "http://127.0.0.1:8000/redoc",
+            
+            "Empresas": {
+                "Listar empresas": "GET http://127.0.0.1:8000/empresas/",
+                "Criar empresa": "POST http://127.0.0.1:8000/empresas/",
+                "Detalhar empresa": "GET http://127.0.0.1:8000/empresas/{empresa_id}/",
+                "Atualizar empresa": "PUT http://127.0.0.1:8000/empresas/{empresa_id}/",
+                "Excluir empresa": "DELETE http://127.0.0.1:8000/empresas/{empresa_id}/"
+            },
+            
+            "Obrigações Acessórias": {
+                "Listar obrigações": "GET http://127.0.0.1:8000/obrigacoes_acessorias/",
+                "Criar obrigação": "POST http://127.0.0.1:8000/obrigacoes_acessorias/",
+                "Atualizar obrigação": "PUT http://127.0.0.1:8000/obrigacoes_acessorias/{obrigacao_id}/",
+                "Excluir obrigação": "DELETE http://127.0.0.1:8000/obrigacoes_acessorias/{obrigacao_id}/"
+            }
+        }
 
+    }
 # ============================
 # Rotas para Empresas
 # ============================

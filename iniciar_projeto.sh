@@ -3,27 +3,49 @@
 # Função para verificar erros e interromper o script em caso de falha
 check_error() {
   if [ $? -ne 0 ]; then
-    echo -e "\033[31m[ERRO]\033[0m Erro encontrado durante a execução do comando: $1"
+    echo "\033[31m[ERRO]\033[0m Erro encontrado durante a execução do comando: $1"
     exit 1
   fi
 }
 
 # Função para exibir informações com formato
 print_info() {
-  echo -e "\033[34m[INFO]\033[0m $1"
+  echo "\033[34m[INFO]\033[0m $1"
 }
 
 # Função para exibir sucesso com formato
 print_success() {
-  echo -e "\033[32m[SUCESO]\033[0m $1"
+  echo "\033[32m[SUCESSO]\033[0m $1"
 }
 
 # Função para exibir aviso com formato
 print_warning() {
-  echo -e "\033[33m[AVISO]\033[0m $1"
+  echo "\033[33m[AVISO]\033[0m $1"
 }
 
+# Função para exibir o painel de resumo
+display_summary() {
+  echo "\n\033[1;37m##########################################\033[0m"
+  echo "\033[1;37m#          RESUMO DA EXECUÇÃO           #\033[0m"
+  echo "\033[1;37m##########################################\033[0m"
+  echo "\033[1;34m[INFO]\033[0m Passos executados:"
+  echo "  - Remoção das variáveis do .env"
+  echo "  - Recarregamento do .env"
+  echo "  - Verificação das variáveis recarregadas"
+  echo "  - Definição do banco de dados com base no ambiente"
+  echo "  - Drop e recriação dos bancos de dados"
+  echo "  - Movimentação e configuração do Alembic"
+  echo "  - Criação e execução de migrações"
+  echo "  - Inserção de dados nas tabelas"
+  echo "\n\033[1;32m[SUCESSO]\033[0m Operações concluídas com sucesso!"
+  echo "\n\033[1;37m##########################################\033[0m"
+}
+
+
 # Passo 1: Remover todas as variáveis definidas no .env
+print_info "Removendo variáveis de ambiente previamente carregadas..."
+unset $(grep -o '^[^=]*' .env | xargs)
+
 if [ -f .env ]; then
     print_info "Removendo variáveis do .env..."
     while IFS= read -r line; do
@@ -40,23 +62,33 @@ else
     exit 1
 fi
 
+
+
 # Passo 2: Recarregar o .env
 print_info "Recarregando variáveis do .env..."
 source .env
 
 # Passo 3: Verificar se as variáveis foram recarregadas
 print_info "Variáveis recarregadas:"
-env | grep -E "$(paste -sd '|' <(grep -o '^[^=]*' .env))"
+VAR_LIST=$(grep -o '^[^=]*' .env | tr '\n' '|')
+VAR_LIST=${VAR_LIST%|}  # Remove o último "|"
+
+if [ -n "$VAR_LIST" ]; then
+    env | grep -E "$VAR_LIST"
+else
+    print_warning "Nenhuma variável encontrada no .env para verificar."
+fi
+
 
 # Verificar se as variáveis de ambiente estão carregadas corretamente
 print_info "Variáveis carregadas:"
-echo -e "\033[35mDB_USER:\033[0m $DB_USER"
-echo -e "\033[35mDB_PASSWORD:\033[0m $DB_PASSWORD"
-echo -e "\033[35mDB_HOST:\033[0m $DB_HOST"
-echo -e "\033[35mDB_PORT:\033[0m $DB_PORT"
-echo -e "\033[35mDB_NAME_PRODUCAO:\033[0m $DB_NAME_PRODUCAO"
-echo -e "\033[35mDB_NAME_TESTE:\033[0m $DB_NAME_TESTE"
-echo -e "\033[35mENV:\033[0m $ENV"
+echo "\033[35mDB_USER:\033[0m $DB_USER"
+echo "\033[35mDB_PASSWORD:\033[0m $DB_PASSWORD"
+echo "\033[35mDB_HOST:\033[0m $DB_HOST"
+echo "\033[35mDB_PORT:\033[0m $DB_PORT"
+echo "\033[35mDB_NAME_PRODUCAO:\033[0m $DB_NAME_PRODUCAO"
+echo "\033[35mDB_NAME_TESTE:\033[0m $DB_NAME_TESTE"
+echo "\033[35mENV:\033[0m $ENV"
 
 # Definir o banco de dados correto com base no ambiente
 if [ "$ENV" == "test" ]; then
@@ -142,11 +174,11 @@ print_info "Inserindo dados nas tabelas de empresas e obrigações..."
 
 psql -U $DB_USER -h $DB_HOST -p $DB_PORT -d $DB_NAME -c "
 INSERT INTO empresas (nome, cnpj, endereco, email, telefone) VALUES
-('Empresa A', '12345678000190', 'Rua A, 100', 'empresaA@exemplo.com', '8112345678'),
-('Empresa B', '23456789000101', 'Rua B, 200', 'empresaB@exemplo.com', '8112345678'),
-('Empresa C', '34567890000112', 'Rua C, 300', 'empresaC@exemplo.com', '8132345678'),
-('Empresa D', '45678901000123', 'Rua D, 400', 'empresaD@exemplo.com', '8142345678'),
-('Empresa E', '56789012000134', 'Rua E, 500', 'empresaE@exemplo.com', '8152345678');
+('Empresa A', '12345678000190', 'Rua A, 100', 'empresaA@exemplo.com', '81123456789'),
+('Empresa B', '23456789000101', 'Rua B, 200', 'empresaB@exemplo.com', '81123456789'),
+('Empresa C', '34567890000112', 'Rua C, 300', 'empresaC@exemplo.com', '81323456789'),
+('Empresa D', '45678901000123', 'Rua D, 400', 'empresaD@exemplo.com', '81423456789'),
+('Empresa E', '56789012000134', 'Rua E, 500', 'empresaE@exemplo.com', '81523456789');
 "
 check_error "Inserir dados na tabela empresas"
 
@@ -164,3 +196,6 @@ INSERT INTO obrigacoes_acessorias (nome, periodicidade, empresa_id) VALUES
 check_error "Inserir dados na tabela obrigacoes_acessorias"
 
 print_success "Operação concluída com sucesso!"
+
+# Exibir o painel de resumo
+display_summary
