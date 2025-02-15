@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base  # Importando corretamente o Base
-from schemas import PeriodicidadeEnum
+
 
 # Modelo de Empresa
 class Empresa(Base):
@@ -19,14 +19,14 @@ class Empresa(Base):
         "ObrigacaoAcessoria", back_populates="empresa", cascade="all, delete-orphan"
     )
 
+
 # Modelo de Obrigação Acessória
 class ObrigacaoAcessoria(Base):
     __tablename__ = "obrigacoes_acessorias"
 
-    id = Column(Integer, primary_key=True, index=True, comment="Identificador único da obrigação acessória")
-    nome = Column(String(100), index=True, nullable=False, comment="Nome da obrigação acessória")
-    periodicidade = Column(Enum(PeriodicidadeEnum), nullable=False, comment="Periodicidade da obrigação (mensal, trimestral, anual)")
-    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=False, comment="ID da empresa associada a esta obrigação")
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String, nullable=False)
+    periodicidade = Column(String, nullable=False)
+    empresa_id = Column(Integer, ForeignKey("empresas.id"), nullable=False)
 
-    # Relacionamento com a empresa
-    empresa = relationship("Empresa", back_populates="obrigacoes_acessorias")
+    empresa = relationship("Empresa", back_populates="obrigacoes_acessorias", lazy="joined")  # 🔥 Correção aqui

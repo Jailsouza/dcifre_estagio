@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
+from models import Empresa, ObrigacaoAcessoria
+
 # Carregar o arquivo .env explicitamente
 load_dotenv(dotenv_path=Path('.env'))
 
@@ -40,17 +42,6 @@ def setup_db():
     Base.metadata.drop_all(bind=engine)
     print("✅ Tabelas removidas com sucesso!")
 
-
-# @pytest.fixture
-# def db(setup_db):
-#     """Cria uma sessão do banco de dados de teste para cada teste."""
-#     session = TestingSessionLocal()
-#     try:
-#         yield session
-#     finally:
-#         session.rollback()  # Evita que transações fiquem pendentes
-#         session.close()
-
 @pytest.fixture
 def db(setup_db):
     """Cria uma sessão do banco de dados de teste e limpa antes de cada teste."""
@@ -76,3 +67,48 @@ def client(db):
     app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
     app.dependency_overrides.clear()
+
+
+
+
+
+
+# import pytest
+# from sqlalchemy.orm import Session
+# from models import Empresa, ObrigacaoAcessoria
+# from database import get_db
+
+# @pytest.fixture
+# def db():
+#     """Retorna uma sessão do banco de dados para testes."""
+#     session = next(get_db())
+#     yield session
+#     session.close()
+
+@pytest.fixture
+def empresa_existente(db: pytest.Session):
+    """Cria uma empresa de teste para associar a obrigações acessórias."""
+    empresa = Empresa(
+        nome="Empresa Teste",
+        cnpj="12345678000195",
+        endereco="Rua A, 100",
+        email="teste@email.com",
+        telefone="11987654321"
+    )
+    db.add(empresa)
+    db.commit()
+    db.refresh(empresa)
+    return empresa
+
+@pytest.fixture
+def obrigacao_existente(db: pytest.Session, empresa_existente):
+    """Cria uma obrigação acessória associada a uma empresa de teste."""
+    obrigacao = ObrigacaoAcessoria(
+        nome="DCTF",
+        periodicidade="MENSAL",
+        empresa_id=empresa_existente.id
+    )
+    db.add(obrigacao)
+    db.commit()
+    db.refresh(obrigacao)
+    return obrigacao

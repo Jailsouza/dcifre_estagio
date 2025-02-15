@@ -100,7 +100,7 @@ http://127.0.0.1:8000/redoc
 ## Pydantic - Live de Python #165
 https://www.youtube.com/watch?v=UdfLu1G47BU
 https://docs.pytest.org/en/stable/how-to/usage.html
-
+https://docs.sqlalchemy.org/en/20/index.html
 
 ## Inserir Obrigações manualmente 
 INSERT INTO public.obrigacoes_acessorias(
@@ -146,3 +146,5 @@ target_metadata = Base.metadata  # A metadata que contém todas as tabelas
 ##
 pytest test/test_endpoints.py::test_listar_empresas 
 pytest test/test_endpoints.py::test_criar_empresa_cnpj_duplicado 
+
+pytest --collect-only
