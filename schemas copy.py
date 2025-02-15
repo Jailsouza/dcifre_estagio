@@ -10,6 +10,8 @@ class PeriodicidadeEnum(str, Enum):
     ANUAL = "anual"
 
 # BaseModel para a empresa
+from pydantic import BaseModel, field_validator, ValidationError
+
 class EmpresaBase(BaseModel):
     nome: str
     cnpj: str
@@ -28,6 +30,7 @@ class EmpresaBase(BaseModel):
         
         return cnpj_numerico
 
+    # Validador para telefone (apenas quantidade de caracteres)
     @field_validator('telefone')
     def validar_telefone(cls, v):
         numeros = re.sub(r'[^0-9]', '', v)  # Remove caracteres não numéricos
@@ -35,16 +38,20 @@ class EmpresaBase(BaseModel):
             raise ValueError('Telefone deve ter exatamente 11 dígitos numéricos')
         return v
 
-class EmpresaCreate(EmpresaBase):
-    pass
+class EmpresaCreate(BaseModel):
+    nome: str
+    cnpj: str
+    endereco: str
+    email: EmailStr
+    telefone: str
 
 # ForwardRef para evitar importação circular
 ObrigacaoAcessoriaRef = ForwardRef('ObrigacaoAcessoria')
 
 class Empresa(EmpresaBase):
     id: int
-    obrigacoes_acessorias: List[ObrigacaoAcessoriaRef] = []  # type: ignore
-    model_config = ConfigDict(from_attributes=True)  # Equivalente ao `orm_mode = True` no Pydantic 1.x
+    obrigacoes_acessorias: List[ObrigacaoAcessoriaRef] = [] # type: ignore
+    model_config = ConfigDict(from_attributes=True)
 
 class EmpresaUpdate(EmpresaBase):
     pass
@@ -61,7 +68,7 @@ class ObrigacaoAcessoriaCreate(ObrigacaoAcessoriaBase):
 class ObrigacaoAcessoria(ObrigacaoAcessoriaBase):
     id: int
     empresa: 'Empresa'  # Remova o Optional
-    model_config = ConfigDict(from_attributes=True)  # Equivalente ao `orm_mode = True` no Pydantic 1.x
+    model_config = ConfigDict(from_attributes=True)
 
 class ObrigacaoAcessoriaUpdate(BaseModel):
     nome: Optional[str] = None
@@ -75,5 +82,5 @@ class ObrigacaoAcessoriaUpdate(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-# Atualize a referência para resolver a importação circular
+# Atualize a referência
 ObrigacaoAcessoria.model_rebuild()

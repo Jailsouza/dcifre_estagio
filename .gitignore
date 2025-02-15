@@ -8,6 +8,9 @@ __pycache__/
 venv/
 env/
 ENV/
+
+# Ignorar o arquivo .env
+.env
 *.env/
 
 # IDEs

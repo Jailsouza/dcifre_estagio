@@ -11,13 +11,8 @@ from crud import (
     update_obrigacao, 
     delete_obrigacao
 )
-import models
-from fastapi import HTTPException
-from schemas import EmpresaCreate, EmpresaUpdate, ObrigacaoAcessoriaCreate, ObrigacaoAcessoriaUpdate, ObrigacaoAcessoria
-# from models import Empresa
-from schemas import Empresa
-# from schemas import Empresa
-
+from schemas import Empresa, EmpresaCreate, EmpresaUpdate, ObrigacaoAcessoriaCreate, ObrigacaoAcessoriaUpdate, ObrigacaoAcessoria
+from models import Empresa as EmpresaModel  # Importe a classe de modelo do SQLAlchemy
 
 app = FastAPI(
     title="Prova de Seleção de Estágio - FastAPI, Pydantic e SQLAlchemy",
@@ -38,36 +33,21 @@ def read_root():
         )
     }
 
-
-
-# @app.post("/empresas/")
-# def criar_empresa(empresa: EmpresaCreate, db: Session = Depends(get_db)):
-#     # Verifica se já existe uma empresa com o mesmo CNPJ
-#     empresa_existente = db.query(Empresa).filter(Empresa.cnpj == empresa.cnpj).first()
-#     if empresa_existente:
-#         raise HTTPException(status_code=400, detail="CNPJ já cadastrado")
-
-#     # Cria a nova empresa
-#     db_empresa = Empresa(**empresa.model_dump())
-#     db.add(db_empresa)
-#     db.commit()
-#     db.refresh(db_empresa)
-#     return db_empresa
-
 @app.post("/empresas/", response_model=Empresa)
 def criar_empresa(empresa: EmpresaCreate, db: Session = Depends(get_db)):
     # Verifica se já existe uma empresa com o mesmo CNPJ
-    empresa_existente = db.query(models.Empresa).filter(models.Empresa.cnpj == empresa.cnpj).first()
-    if empresa_existente:
-        raise HTTPException(status_code=400, detail="CNPJ já cadastrado")
+    if db.query(EmpresaModel).filter(EmpresaModel.cnpj == empresa.cnpj).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="CNPJ já cadastrado"
+        )
 
-    # Cria a nova empresa
-    db_empresa = models.Empresa(**empresa.model_dump())
+    # Cria uma instância do modelo a partir do schema Pydantic
+    db_empresa = EmpresaModel(**empresa.model_dump())
     db.add(db_empresa)
     db.commit()
     db.refresh(db_empresa)
     return db_empresa
-
 
 @app.get("/empresas/", response_model=List[Empresa])
 def listar_empresas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
