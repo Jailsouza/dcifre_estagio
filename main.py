@@ -37,7 +37,7 @@ app = FastAPI(
 
 # Determinar o ambiente atual
 ENV = os.getenv("ENV", "prod")  # Padrão: produção
-AMBIENTE_ATUAL = "🚀 Produção" if ENV == "prod" else "🧪 TESTE"
+AMBIENTE_ATUAL = "🚀 PRODUÇÃO" if ENV == "prod" else "🧪 TESTE"
 
 @app.get("/")
 def read_root():

@@ -8,19 +8,17 @@ from pathlib import Path
 # Carregar o arquivo .env explicitamente
 load_dotenv(dotenv_path=Path('.env'))
 
-# Recuperar variáveis de ambiente
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-ENV = os.getenv("ENV")
-print(f"ENV: {ENV}")
+# Recuperar variáveis de ambiente com valores padrão para evitar erros
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "5432")
+ENV = os.getenv("ENV", "dbdcifre_test")  # Assume "dbdcifre_test" por padrão
 
-# Verifica se o ambiente é de teste, se sim, usa o banco de teste
-DB_NAME = os.getenv("DB_NAME_TESTE") if os.getenv("ENV") == "test" else os.getenv("DB_NAME_PRODUCAO")
+# Definir o nome do banco de dados corretamente
+DB_NAME = os.getenv("DB_NAME_TESTE", "banco_teste") if ENV == "test" else os.getenv("DB_NAME_PRODUCAO", "dbdcifre")
 
-
-# Cria a URL de conexão com o banco de dados
+# Criar a URL de conexão com o banco de dados de teste
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Imprimir os dados

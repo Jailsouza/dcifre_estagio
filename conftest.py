@@ -3,28 +3,37 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database import Base, get_db
-from main import app  # Importe o aplicativo FastAPI
+from main import app
 from dotenv import load_dotenv
 from pathlib import Path
 import os
 
 from models import Empresa, ObrigacaoAcessoria
 
-# Carregar o arquivo .env explicitamente
+# Carregar o arquivo .env explicitamente, direto.
 load_dotenv(dotenv_path=Path('.env'))
 
 # Recuperar variáveis de ambiente com valores padrão para evitar erros
 DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "5432")
-ENV = os.getenv("ENV", "test")  # Assume "test" por padrão
+ENV = os.getenv("ENV", "dbdcifre_test")  # Assume "dbdcifre_test" por padrão
 
 # Definir o nome do banco de dados corretamente
-DB_NAME = os.getenv("DB_NAME_TESTE", "banco_teste") if ENV == "test" else os.getenv("DB_NAME_PRODUCAO", "banco_producao")
+DB_NAME = os.getenv("DB_NAME_TESTE", "banco_teste") if ENV == "test" else os.getenv("DB_NAME_PRODUCAO", "dbdcifre")
 
 # Criar a URL de conexão com o banco de dados de teste
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# Imprimir os dados
+print(f"DB_USER: {DB_USER}")
+print(f"DB_PASSWORD: {DB_PASSWORD}")
+print(f"DB_HOST: {DB_HOST}")
+print(f"DB_PORT: {DB_PORT}")
+print(f"DB_NAME: {DB_NAME}")
+print(f"ENV: {ENV}")
+print(f"DATABASE_URL: {DATABASE_URL}")
 
 # Criar o engine e a sessão do banco de dados
 engine = create_engine(DATABASE_URL)
@@ -72,11 +81,11 @@ def client(db):
 def empresa_existente(db: pytest.Session):
     """Cria uma empresa de teste para associar a obrigações acessórias."""
     empresa = Empresa(
-        nome="Empresa Teste",
+        nome="Sport Club do Recife",
         cnpj="12345678000195",
         endereco="Rua A, 100",
-        email="teste@email.com",
-        telefone="11987654321"
+        email="teste@sport.com",
+        telefone="81987654321"
     )
     db.add(empresa)
     db.commit()
