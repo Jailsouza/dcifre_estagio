@@ -34,25 +34,20 @@ class EmpresaBase(BaseModel):
 class EmpresaCreate(EmpresaBase):
     pass
 
-# class ObrigacaoAcessoria(ObrigacaoAcessoriaBase):
-#     id: int
-#     model_config = ConfigDict(from_attributes=True)
-
-
-# ForwardRef para evitar importação circular
-ObrigacaoAcessoriaResponseRef = ForwardRef('ObrigacaoAcessoriaResponse')
-
-class Empresa(EmpresaBase):
-    id: int
-    obrigacoes_acessorias: List[ObrigacaoAcessoriaResponseRef] = []  # ✅ Agora usa objetos, não IDs
-    model_config = ConfigDict(from_attributes=True)
-
 class EmpresaUpdate(BaseModel):
     nome: Optional[str] = None
     cnpj: Optional[str] = None
     endereco: Optional[str] = None
     email: Optional[EmailStr] = None
     telefone: Optional[str] = None
+
+# ForwardRef para evitar importação circular
+ObrigacaoAcessoriaResponseRef = ForwardRef('ObrigacaoAcessoriaResponse')
+
+class Empresa(EmpresaBase):
+    id: int
+    obrigacoes_acessorias: List[ObrigacaoAcessoriaResponseRef] = []
+    model_config = ConfigDict(from_attributes=True)
 
 # BaseModel para obrigação acessória
 class ObrigacaoAcessoriaBase(BaseModel):
@@ -65,7 +60,7 @@ class ObrigacaoAcessoriaCreate(ObrigacaoAcessoriaBase):
 
 class ObrigacaoAcessoriaResponse(ObrigacaoAcessoriaBase):
     id: int
-    empresa: Optional[EmpresaBase] = None  # ✅ Usa EmpresaBase para evitar referência circular
+    empresa: Optional[EmpresaBase] = None
     model_config = ConfigDict(from_attributes=True)
 
 class ObrigacaoAcessoriaUpdate(BaseModel):
@@ -80,6 +75,6 @@ class ObrigacaoAcessoriaUpdate(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-# Atualiza a referência para evitar problemas de importação circular
+# Atualiza os modelos
 Empresa.model_rebuild()
 ObrigacaoAcessoriaResponse.model_rebuild()

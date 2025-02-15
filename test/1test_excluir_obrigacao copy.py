@@ -1,6 +1,6 @@
 import pytest
 
-def test_atualizar_obrigacao(client, setup_db):
+def test_excluir_obrigacao(client, setup_db):
     # Criar empresa primeiro
     empresa_data = {
         "nome": "Stark Industries",
@@ -19,7 +19,7 @@ def test_atualizar_obrigacao(client, setup_db):
     obrigacao_data = {
         "nome": "Declaração Mensal",
         "periodicidade": "MENSAL",
-        "empresa_id": empresa_id  # 🔹 Agora associamos corretamente à empresa criada
+        "empresa_id": empresa_id  # 🔹 Associamos à empresa criada
     }
 
     response = client.post("/obrigacoes_acessorias/", json=obrigacao_data)
@@ -27,12 +27,7 @@ def test_atualizar_obrigacao(client, setup_db):
     obrigacao = response.json()
     obrigacao_id = obrigacao["id"]
 
-    # Atualizar a obrigação
-    dados_atualizados = {
-        "nome": "Declaração Anual",
-        "periodicidade": "ANUAL"
-    }
-
-    response = client.put(f"/obrigacoes_acessorias/{obrigacao_id}/", json=dados_atualizados)
-    assert response.status_code == 200  # Verifica se a atualização foi bem-sucedida
-    assert response.json()["nome"] == dados_atualizados["nome"]
+    # Excluir a obrigação acessória
+    response = client.delete(f"/obrigacoes_acessorias/{obrigacao_id}/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Obrigação acessória excluída com sucesso."}
