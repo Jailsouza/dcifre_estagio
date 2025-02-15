@@ -13,10 +13,15 @@ from crud import (
 )
 import models
 from fastapi import HTTPException
-from schemas import EmpresaCreate, EmpresaUpdate, ObrigacaoAcessoriaCreate, ObrigacaoAcessoriaUpdate, ObrigacaoAcessoria
-# from models import Empresa
+from schemas import (
+    EmpresaCreate,
+    EmpresaUpdate,
+    ObrigacaoAcessoriaCreate,
+    ObrigacaoAcessoriaUpdate,
+    ObrigacaoAcessoriaResponse  # ✅ Corrigido
+)
 from schemas import Empresa
-# from schemas import Empresa
+
 
 
 app = FastAPI(
@@ -38,21 +43,6 @@ def read_root():
         )
     }
 
-
-
-# @app.post("/empresas/")
-# def criar_empresa(empresa: EmpresaCreate, db: Session = Depends(get_db)):
-#     # Verifica se já existe uma empresa com o mesmo CNPJ
-#     empresa_existente = db.query(Empresa).filter(Empresa.cnpj == empresa.cnpj).first()
-#     if empresa_existente:
-#         raise HTTPException(status_code=400, detail="CNPJ já cadastrado")
-
-#     # Cria a nova empresa
-#     db_empresa = Empresa(**empresa.model_dump())
-#     db.add(db_empresa)
-#     db.commit()
-#     db.refresh(db_empresa)
-#     return db_empresa
 
 @app.post("/empresas/", response_model=Empresa)
 def criar_empresa(empresa: EmpresaCreate, db: Session = Depends(get_db)):
@@ -94,36 +84,38 @@ def excluir_empresa(empresa_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Empresa não encontrada")
     return db_empresa
 
-@app.get("/obrigacoes_acessorias/", response_model=List[ObrigacaoAcessoria])
+@app.get("/obrigacoes_acessorias/", response_model=List[ObrigacaoAcessoriaResponse])
 def listar_obrigacoes(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return get_obrigacoes(db=db, skip=skip, limit=limit)
 
-@app.post("/obrigacoes_acessorias/", response_model=ObrigacaoAcessoria)
+@app.post("/obrigacoes_acessorias/", response_model=ObrigacaoAcessoriaResponse)
 def criar_nova_obrigacao(obrigacao: ObrigacaoAcessoriaCreate, db: Session = Depends(get_db)):
     # Verifica se já existe uma obrigação com o mesmo nome para a empresa
-    db_obrigacao = db.query(ObrigacaoAcessoria).filter(
-        ObrigacaoAcessoria.nome == obrigacao.nome, 
-        ObrigacaoAcessoria.empresa_id == obrigacao.empresa_id
+    db_obrigacao = db.query(models.ObrigacaoAcessoria).filter(
+        models.ObrigacaoAcessoria.nome == obrigacao.nome, 
+        models.ObrigacaoAcessoria.empresa_id == obrigacao.empresa_id
     ).first()
     
     if db_obrigacao:
         raise HTTPException(status_code=400, detail="Essa obrigação acessória já existe para essa empresa.")
     
     # Criação da nova obrigação acessória
-    db_obrigacao = ObrigacaoAcessoria(**obrigacao.model_dump())  # Usando model_dump() para criar o objeto
+    db_obrigacao = models.ObrigacaoAcessoria(**obrigacao.model_dump())
     db.add(db_obrigacao)
     db.commit()
     db.refresh(db_obrigacao)
     return db_obrigacao
 
-@app.put("/obrigacoes_acessorias/{obrigacao_id}/", response_model=ObrigacaoAcessoria)
+
+
+@app.put("/obrigacoes_acessorias/{obrigacao_id}/", response_model=ObrigacaoAcessoriaResponse)
 def atualizar_obrigacao(obrigacao_id: int, obrigacao: ObrigacaoAcessoriaUpdate, db: Session = Depends(get_db)):
     db_obrigacao = update_obrigacao(db, obrigacao_id, obrigacao)
     if not db_obrigacao:
         raise HTTPException(status_code=404, detail="Obrigação acessória não encontrada")
     return db_obrigacao
 
-@app.delete("/obrigacoes_acessorias/{obrigacao_id}/", response_model=ObrigacaoAcessoria)
+@app.delete("/obrigacoes_acessorias/{obrigacao_id}/", response_model=ObrigacaoAcessoriaResponse)
 def excluir_obrigacao(obrigacao_id: int, db: Session = Depends(get_db)):
     db_obrigacao = delete_obrigacao(db, obrigacao_id)
     if not db_obrigacao:

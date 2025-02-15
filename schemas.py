@@ -5,9 +5,9 @@ import re
 
 # Enums
 class PeriodicidadeEnum(str, Enum):
-    MENSAL = "mensal"
-    TRIMESTRAL = "trimestral"
-    ANUAL = "anual"
+    MENSAL = "MENSAL"
+    TRIMESTRAL = "TRIMESTRAL"
+    ANUAL = "ANUAL"
 
 # BaseModel para a empresa
 class EmpresaBase(BaseModel):
@@ -19,18 +19,14 @@ class EmpresaBase(BaseModel):
 
     @field_validator('cnpj')
     def validar_cnpj(cls, v):
-        # Remove caracteres não numéricos (como traços e pontos)
         cnpj_numerico = ''.join(filter(str.isdigit, v))
-        
-        # Verifica se o CNPJ tem exatamente 14 dígitos
         if len(cnpj_numerico) != 14:
             raise ValueError('CNPJ deve ter exatamente 14 dígitos numéricos')
-        
         return cnpj_numerico
 
     @field_validator('telefone')
     def validar_telefone(cls, v):
-        numeros = re.sub(r'[^0-9]', '', v)  # Remove caracteres não numéricos
+        numeros = re.sub(r'[^0-9]', '', v)
         if len(numeros) != 11:
             raise ValueError('Telefone deve ter exatamente 11 dígitos numéricos')
         return v
@@ -38,16 +34,25 @@ class EmpresaBase(BaseModel):
 class EmpresaCreate(EmpresaBase):
     pass
 
+# class ObrigacaoAcessoria(ObrigacaoAcessoriaBase):
+#     id: int
+#     model_config = ConfigDict(from_attributes=True)
+
+
 # ForwardRef para evitar importação circular
-ObrigacaoAcessoriaRef = ForwardRef('ObrigacaoAcessoria')
+ObrigacaoAcessoriaResponseRef = ForwardRef('ObrigacaoAcessoriaResponse')
 
 class Empresa(EmpresaBase):
     id: int
-    obrigacoes_acessorias: List[ObrigacaoAcessoriaRef] = []  # type: ignore
-    model_config = ConfigDict(from_attributes=True)  # Equivalente ao `orm_mode = True` no Pydantic 1.x
+    obrigacoes_acessorias: List[ObrigacaoAcessoriaResponseRef] = []  # ✅ Agora usa objetos, não IDs
+    model_config = ConfigDict(from_attributes=True)
 
-class EmpresaUpdate(EmpresaBase):
-    pass
+class EmpresaUpdate(BaseModel):
+    nome: Optional[str] = None
+    cnpj: Optional[str] = None
+    endereco: Optional[str] = None
+    email: Optional[EmailStr] = None
+    telefone: Optional[str] = None
 
 # BaseModel para obrigação acessória
 class ObrigacaoAcessoriaBase(BaseModel):
@@ -58,10 +63,10 @@ class ObrigacaoAcessoriaBase(BaseModel):
 class ObrigacaoAcessoriaCreate(ObrigacaoAcessoriaBase):
     pass
 
-class ObrigacaoAcessoria(ObrigacaoAcessoriaBase):
+class ObrigacaoAcessoriaResponse(ObrigacaoAcessoriaBase):
     id: int
-    empresa: 'Empresa'  # Remova o Optional
-    model_config = ConfigDict(from_attributes=True)  # Equivalente ao `orm_mode = True` no Pydantic 1.x
+    empresa: Optional[EmpresaBase] = None  # ✅ Usa EmpresaBase para evitar referência circular
+    model_config = ConfigDict(from_attributes=True)
 
 class ObrigacaoAcessoriaUpdate(BaseModel):
     nome: Optional[str] = None
@@ -75,5 +80,6 @@ class ObrigacaoAcessoriaUpdate(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-# Atualize a referência para resolver a importação circular
-ObrigacaoAcessoria.model_rebuild()
+# Atualiza a referência para evitar problemas de importação circular
+Empresa.model_rebuild()
+ObrigacaoAcessoriaResponse.model_rebuild()

@@ -1,13 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from database import Base  # Importando o Base agora corretamente do arquivo database.py
-from enum import Enum as PyEnum
-
-# Definindo um Enum para periodicidade
-class PeriodicidadeEnum(PyEnum):
-    MENSAL = "mensal"
-    TRIMESTRAL = "trimestral"
-    ANUAL = "anual"
+from schemas import PeriodicidadeEnum
 
 # Modelo de Empresa
 class Empresa(Base):
