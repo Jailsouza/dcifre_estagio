@@ -68,23 +68,6 @@ def client(db):
     yield TestClient(app)
     app.dependency_overrides.clear()
 
-
-
-
-
-
-# import pytest
-# from sqlalchemy.orm import Session
-# from models import Empresa, ObrigacaoAcessoria
-# from database import get_db
-
-# @pytest.fixture
-# def db():
-#     """Retorna uma sessão do banco de dados para testes."""
-#     session = next(get_db())
-#     yield session
-#     session.close()
-
 @pytest.fixture
 def empresa_existente(db: pytest.Session):
     """Cria uma empresa de teste para associar a obrigações acessórias."""
