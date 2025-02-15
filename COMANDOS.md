@@ -161,8 +161,10 @@ CREATE DATABASE dbdcifre_test;
 
 ## Configurar Alembic
 ```sh
-alembic init alembic
+# Remove pastas antigas (opcional).
 rm -rf alembic/
+
+alembic init alembic
 ```
 
 ## Criar e Aplicar Migrações
@@ -171,17 +173,17 @@ alembic revision --autogenerate -m "Criar as tabelas"
 alembic upgrade head
 ```
 
-## Gerenciar Migrações
+## Gerenciar Migrações (Opcional)
 ```sh
 alembic history --verbose
 alembic downgrade <revision_id>
-alembic revision --autogenerate -m "Initial migration" --head <revision_id>
+alembic revision --autogenerate -m "Criar as tabelas" --head <revision_id>
 ```
 
-## Resetar Migrações
+## Resetar Migrações (Opcional)
 ```sh
 find alembic/ -mindepth 1 ! -name 'env.py' -exec rm -rf {} + && alembic init alembic
-alembic revision --autogenerate -m "Initial migration"
+alembic revision --autogenerate -m "Criar as tabelas"
 alembic upgrade head
 ```
 
@@ -199,20 +201,26 @@ pytest --cov=app
 
 ## Testar Modelos e Endpoints
 ```sh
-# Testar os endpoints da Empresa (Empresa): 
+#
+# Testar os endpoints da Empresa (Empresa):
+#
 python test/empresa/test_create_empresa_cnpj_duplicado.py
 python test/empresa/test_create_empresa_cnpj_invalido.py
 python test/empresa/test_delete_empresa.py
 python test/empresa/test_empresa_operations.py.
 python test/empresa/test_list_empresas.py
 python test/empresa/test_update_empresa.py
+#
 # Testar os endpoints da Obrigação Acessória (ObrigacaoAcessoria):  
+#
 python test/obrigacao/test_create_obrigacao.py
 python test/obrigacao/test_excluir_obrigacao.py
 python test/obrigacao/test_listar_obrigacoes.py
 python test/obrigacao/test_update_obrigacao.py
 python test/test_main_routes.py
+#
 # listar os testes que o pytest encontrou no seu projeto sem realmente executá-los.
+#
 pytest --collect-only
 ```
 
